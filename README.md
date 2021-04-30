@@ -2,7 +2,7 @@
 
 ```
 # 起動
-ocaml
+rlwrap ocaml or ocaml
 
 # 修了
 exit;;
