@@ -5,5 +5,5 @@
 rlwrap ocaml or ocaml
 
 # 修了
-exit;;
+exit 0;;
 ```
