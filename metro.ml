@@ -10,3 +10,11 @@ let hyouji ekimei = match ekimei with
     shozoku ^ ", " ^ kanji ^ "（" ^ kana ^ "）"
 
 let hyouji_test = hyouji {kanji = "茗荷谷"; kana = "みょうがだに"; romaji = "myougadani"; shozoku = "丸ノ内線"} = "丸ノ内線, 茗荷谷（みょうがだに）"
+
+type ekikan_t = {
+  kiten : string;
+  syuten : string;
+  keiyu : string;
+  kyori : float;
+  jikan : int;
+}
