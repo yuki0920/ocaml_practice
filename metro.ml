@@ -411,3 +411,26 @@ let rec shokika eki_t_list kiten = match eki_t_list with
 let test_shokika1 = shokika [{namae="代々木上原"; saitan_kyori = infinity; temae_list = []}] "代々木上原" = [{namae="代々木上原"; saitan_kyori = 0.; temae_list = ["代々木上原"]}]
 let test_shokika2 = shokika [{namae="代々木上原"; saitan_kyori = infinity; temae_list = []}; {namae="代々木公園"; saitan_kyori = infinity; temae_list = []}] "代々木上原"
   = [{namae="代々木上原"; saitan_kyori = 0.; temae_list = ["代々木上原"]};  {namae="代々木公園"; saitan_kyori = infinity; temae_list = []}]
+
+let rec seiretsu eki_t_list = match eki_t_list with
+  [] -> []
+  | first :: first_rest -> match first_rest with
+    [] -> first :: seiretsu first_rest
+    | second :: second_rest ->
+      if first.kanji = second.kanji then first :: seiretsu second_rest
+      else first :: seiretsu first_rest
+
+let test_seiretsu1 = seiretsu [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}]
+let test_seiretsu2 = seiretsu [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="丸ノ内線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}]
+
+let rec kana_sort ekimei_t_list = match ekimei_t_list with
+  [] -> []
+  | first :: first_rest -> match first_rest with
+    [] -> kana_sort first_rest
+    | second :: second_rest ->
+      if first.kana > second.kana then first :: kana_sort second_rest
+      else kana_sort first_rest
+
+let test_kana_sort1 = kana_sort [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}]
+let test_kana_sort2 = kana_sort [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
+let test_kana_sort3 = kana_sort [{kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}; {kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
