@@ -362,3 +362,14 @@ let test_romaji_to_kanji1 = romaji_to_kanji "" global_ekimei_list = ""
 let test_romaji_to_kanji2 = romaji_to_kanji "yoyogiuehara" global_ekimei_list = "代々木上原"
 let test_romaji_to_kanji3 = romaji_to_kanji "yoyogikouen" global_ekimei_list = "代々木公園"
 let test_romaji_to_kanji3 = romaji_to_kanji "yoyogijinja" global_ekimei_list = ""
+
+let rec get_ekikan_kyori eki1 eki2 ekikan_list = match ekikan_list with
+  [] -> infinity
+  | {kiten = kiten; shuten = shuten; keiyu = keiyu; kyori = kyori; jikan = jikan} :: rest
+    -> if (kiten = eki1 && shuten = eki2) || (kiten = eki2 && shuten = eki1) then kyori
+      else get_ekikan_kyori eki1 eki2 rest
+
+let test_get_ekikan_kyori1 = get_ekikan_kyori "代々木上原" "代々木公園" [] = infinity
+let test_get_ekikan_kyori2 = get_ekikan_kyori "代々木公園" "代々木神社" global_ekikan_list = infinity
+let test_get_ekikan_kyori3 = get_ekikan_kyori "代々木上原" "代々木公園" global_ekikan_list = 1.0
+let test_get_ekikan_kyori4 = get_ekikan_kyori "代々木公園" "代々木上原" global_ekikan_list = 1.0
