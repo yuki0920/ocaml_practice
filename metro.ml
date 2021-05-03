@@ -373,3 +373,16 @@ let test_get_ekikan_kyori1 = get_ekikan_kyori "代々木上原" "代々木公園
 let test_get_ekikan_kyori2 = get_ekikan_kyori "代々木公園" "代々木神社" global_ekikan_list = infinity
 let test_get_ekikan_kyori3 = get_ekikan_kyori "代々木上原" "代々木公園" global_ekikan_list = 1.0
 let test_get_ekikan_kyori4 = get_ekikan_kyori "代々木公園" "代々木上原" global_ekikan_list = 1.0
+
+let rec kyori_wo_hyoji eki1 eki2 = let kanji_eki1 = romaji_to_kanji eki1  global_ekimei_list in let kanji_eki2 = romaji_to_kanji eki2 global_ekimei_list in
+  if kanji_eki1 = "" then eki1 ^ "という駅は存在しません"
+  else if kanji_eki2 = "" then eki2 ^ "という駅は存在しません"
+  else let ekikan_kyori = get_ekikan_kyori kanji_eki1 kanji_eki2 global_ekikan_list in
+    if ekikan_kyori = infinity
+    then kanji_eki1 ^ "駅と" ^ kanji_eki2 ^ "駅はつながっていません"
+    else kanji_eki1 ^ "駅と" ^ kanji_eki2 ^ "駅までは" ^ string_of_float ekikan_kyori ^ "kmです"
+
+let test_kyori_wo_hyoji1 = kyori_wo_hyoji "yoyogijinja" "yoyogiuehara" = "yoyogijinjaという駅は存在しません"
+let test_kyori_wo_hyoji2 = kyori_wo_hyoji "yoyogiuehara" "yoyogijinja" = "yoyogijinjaという駅は存在しません"
+let test_kyori_wo_hyoji3 = kyori_wo_hyoji "yoyogiuehara" "meijijinguumae" = "代々木上原駅と明治神宮前駅はつながっていません"
+let test_kyori_wo_hyoji4 = kyori_wo_hyoji "yoyogiuehara" "yoyogikouen" = "代々木上原駅と代々木公園駅までは1.kmです"
