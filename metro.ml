@@ -388,3 +388,16 @@ let test_kyori_wo_hyoji1 = kyori_wo_hyoji "yoyogijinja" "yoyogiuehara" = "yoyogi
 let test_kyori_wo_hyoji2 = kyori_wo_hyoji "yoyogiuehara" "yoyogijinja" = "yoyogijinjaという駅は存在しません"
 let test_kyori_wo_hyoji3 = kyori_wo_hyoji "yoyogiuehara" "meijijinguumae" = "代々木上原駅と明治神宮前駅はつながっていません"
 let test_kyori_wo_hyoji4 = kyori_wo_hyoji "yoyogiuehara" "yoyogikouen" = "代々木上原駅と代々木公園駅までは1.kmです"
+
+type eki_t = {
+  namae : string;
+  saitan_kyori : float;
+  temae_list : string list;
+}
+
+let rec make_eki_list ekimei_t_list = match ekimei_t_list with
+  [] -> []
+  | ekimei_t :: rest -> {namae = ekimei_t.kanji; saitan_kyori = infinity; temae_list = []} :: make_eki_list rest
+
+let test_make_eki_list1 = make_eki_list [] = []
+let test_make_eki_list2 = make_eki_list [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"};] = [{namae = "代々木上原"; saitan_kyori = infinity; temae_list = []}]
