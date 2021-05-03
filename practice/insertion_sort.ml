@@ -2,7 +2,9 @@ let rec insert lst num = match lst with
   [] -> [num]
   | first :: rest ->
     if first > num
-    then insert (num :: rest) first
+    (* 下記のように異常の場合は問題を小さくしない場合もある *)
+    (* 挿入ソートなので num を一番始めに移動する *)
+    then num :: lst
     else first :: insert rest num
 
 let test_insert1 = insert [] 1 = [1]
