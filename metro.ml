@@ -13,7 +13,7 @@ let hyouji_test = hyouji {kanji = "茗荷谷"; kana = "みょうがだに"; roma
 
 type ekikan_t = {
   kiten : string;
-  syuten : string;
+  shuten : string;
   keiyu : string;
   kyori : float;
   jikan : int;
@@ -189,6 +189,7 @@ let global_ekimei_list = [
   {kanji="営団成増"; kana="えいだんなります"; romaji="eidannarimasu"; shozoku="有楽町線"};
   {kanji="和光市"; kana="わこうし"; romaji="wakousi"; shozoku="有楽町線"};
 ]
+
 let global_ekikan_list = [
   {kiten="代々木上原"; shuten="代々木公園"; keiyu="千代田線"; kyori=1.0; jikan=2};
   {kiten="代々木公園"; shuten="明治神宮前"; keiyu="千代田線"; kyori=1.2; jikan=2};
@@ -351,3 +352,13 @@ let global_ekikan_list = [
   {kiten="営団赤塚"; shuten="営団成増"; keiyu="有楽町線"; kyori=1.5; jikan=2};
   {kiten="営団成増"; shuten="和光市"; keiyu="有楽町線"; kyori=2.1; jikan=3};
 ]
+
+let rec romaji_to_kanji input_romaji ekimei_list = match ekimei_list with
+  [] -> ""
+  | {kanji = kanji; kana = kana; romaji = romaji; shozoku = shozoku;} :: rest
+    -> if input_romaji = romaji then kanji else romaji_to_kanji input_romaji rest
+
+let test_romaji_to_kanji1 = romaji_to_kanji "" global_ekimei_list = ""
+let test_romaji_to_kanji2 = romaji_to_kanji "yoyogiuehara" global_ekimei_list = "代々木上原"
+let test_romaji_to_kanji3 = romaji_to_kanji "yoyogikouen" global_ekimei_list = "代々木公園"
+let test_romaji_to_kanji3 = romaji_to_kanji "yoyogijinja" global_ekimei_list = ""
