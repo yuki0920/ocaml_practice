@@ -423,13 +423,18 @@ let rec seiretsu eki_t_list = match eki_t_list with
 let test_seiretsu1 = seiretsu [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}]
 let test_seiretsu2 = seiretsu [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="丸ノ内線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}]
 
-let rec kana_sort ekimei_t_list = match ekimei_t_list with
+
+let rec kana_insert lst str = match lst with
+  [] -> [str]
+  | first :: rest ->
+    if first.kana < str.kana
+    then first :: kana_insert rest str
+    else str :: lst
+
+
+let rec kana_sort lst = match lst with
   [] -> []
-  | first :: first_rest -> match first_rest with
-    [] -> kana_sort first_rest
-    | second :: second_rest ->
-      if first.kana > second.kana then first :: kana_sort second_rest
-      else kana_sort first_rest
+  | first :: rest -> kana_insert (kana_sort rest) first
 
 let test_kana_sort1 = kana_sort [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}]
 let test_kana_sort2 = kana_sort [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
