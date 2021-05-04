@@ -450,7 +450,7 @@ let test_seiretsu1 = seiretsu [{kanji="代々木上原"; kana="よよぎうえ�
 let test_seiretsu2 = seiretsu [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
 let test_seiretsu3 = seiretsu [{kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}; {kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
 
-let koushin1 start dest = let kyori = get_ekikan_kyori start.namae dest.namae global_ekikan_list in
+let koushin1 start dest ekikan_list = let kyori = get_ekikan_kyori start.namae dest.namae ekikan_list in
   if kyori = infinity || kyori >= dest.saitan_kyori  then dest
   else {namae = dest.namae; saitan_kyori = start.saitan_kyori +. kyori; temae_list = dest.namae :: start.temae_list}
 
@@ -459,21 +459,21 @@ let eki2 = {namae="新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "�
 let eki3 = {namae="茗荷谷"; saitan_kyori = 0.; temae_list = ["茗荷谷"]}
 let eki4 = {namae="後楽園"; saitan_kyori = infinity; temae_list = []}
 
-let test_koushin1 = koushin1 eki3 eki1 = eki1
-let test_koushin2 = koushin1 eki3 eki2 = eki2
-let test_koushin3 = koushin1 eki3 eki3 = eki3
-let test_koushin4 = koushin1 eki3 eki4 = {namae="後楽園"; saitan_kyori = 1.8; temae_list = ["後楽園"; "茗荷谷"]}
-let test_koushin_5 = koushin1 eki2 eki1 = {namae="池袋"; saitan_kyori = 3.0; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}
-let test_koushin_6 = koushin1 eki2 eki2 = eki2
-let test_koushin_7 = koushin1 eki2 eki3 = eki3
-let test_koushin_8 = koushin1 eki2 eki4 = eki4
+let test_koushin1 = koushin1 eki3 eki1 global_ekikan_list = eki1
+let test_koushin2 = koushin1 eki3 eki2 global_ekikan_list = eki2
+let test_koushin3 = koushin1 eki3 eki3 global_ekikan_list = eki3
+let test_koushin4 = koushin1 eki3 eki4 global_ekikan_list = {namae="後楽園"; saitan_kyori = 1.8; temae_list = ["後楽園"; "茗荷谷"]}
+let test_koushin_5 = koushin1 eki2 eki1 global_ekikan_list = {namae="池袋"; saitan_kyori = 3.0; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}
+let test_koushin_6 = koushin1 eki2 eki2 global_ekikan_list = eki2
+let test_koushin_7 = koushin1 eki2 eki3 global_ekikan_list = eki3
+let test_koushin_8 = koushin1 eki2 eki4 global_ekikan_list = eki4
 
-let koushin start eki_list = List.map(fun dest -> koushin1 start dest) eki_list
+let koushin start ekimei_list ekikan_list = List.map(fun dest -> koushin1 start dest ekikan_list) ekimei_list
 
 let eki_lst = [eki1; eki2; eki3; eki4]
 
-let test_koushin1 = koushin eki2 [] = []
-let test_koushin2 = koushin eki2 eki_lst = [{namae="池袋"; saitan_kyori = 3.0; temae_list = ["池袋"; "新大塚"; "茗荷谷"]};
+let test_koushin1 = koushin eki2 [] global_ekikan_list = []
+let test_koushin2 = koushin eki2 eki_lst global_ekikan_list = [{namae="池袋"; saitan_kyori = 3.0; temae_list = ["池袋"; "新大塚"; "茗荷谷"]};
   eki2; eki3; eki4]
 
 let rec saitan eki_list = match eki_list with
