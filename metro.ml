@@ -468,6 +468,7 @@ let test_koushin_6 = koushin1 eki2 eki2 global_ekikan_list = eki2
 let test_koushin_7 = koushin1 eki2 eki3 global_ekikan_list = eki3
 let test_koushin_8 = koushin1 eki2 eki4 global_ekikan_list = eki4
 
+(* 目的 起点と駅名リストと駅間リストを受け取り最短距離を更新したeki_tリストを返す *)
 let koushin start ekimei_list ekikan_list = List.map(fun dest -> koushin1 start dest ekikan_list) ekimei_list
 
 let eki_lst = [eki1; eki2; eki3; eki4]
@@ -504,3 +505,17 @@ let eki4 = {namae="後楽園"; saitan_kyori = infinity; temae_list = []}
 let eki_list = [eki1; eki2; eki3; eki4]
 let test_saitan_wo_bunri = saitan_wo_bunri eki_list = (eki3, [eki1; eki2; eki4])
 let test_saitan = saitan eki_list = eki3
+
+(* 目的 駅名リストと駅間リストを引数に受け取り各駅の最短距離を更新した駅間リストを返す *)
+let rec dijkstra_main ekimei_list ekikan_list = match ekimei_list with
+  [] -> []
+  | first :: rest -> match ekimei_list with
+    [] -> []
+    | first :: rest -> []
+
+let test_dijkstra_main1 = dijkstra_main [] global_ekikan_list = []
+let test_dijkstra_main2 = dijkstra_main ekimei_list global_ekikan_list =
+  [{namae = "茗荷谷"; saitan_kyori = 0.; temae_list = ["茗荷谷"]};
+    {namae = "新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]};
+    {namae = "後楽園"; saitan_kyori = 1.8; temae_list = ["後楽園"; "茗荷谷"]};
+    {namae = "池袋"; saitan_kyori = 3.; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}]
