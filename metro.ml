@@ -488,13 +488,14 @@ let rec saitan eki_list = match eki_list with
 (* 最短の点を保持し、更新する *)
 (* 最短の点以外を保持し、更新する *)
 
-let rec saitan_wo_bunri eki_list = match eki_list with
-  [] -> failwith "error"
-  | [first] -> (first, [])
-  | first :: rest -> let (second, second_rest)  = saitan_wo_bunri rest in
-    if first.saitan_kyori <= second.saitan_kyori
-    then (first, second :: second_rest)
-    else (second, first :: second_rest)
+let saitan_wo_bunri eki_list =
+  List.fold_right(fun eki (first, rest) ->
+    if first.namae = ""
+    then (eki, rest)
+    else if eki.saitan_kyori < first.saitan_kyori
+    then (eki, first :: rest)
+    else (first, eki :: rest)
+  ) eki_list ({namae = ""; saitan_kyori = infinity; temae_list = []}, [])
 
 let eki1 = {namae="池袋"; saitan_kyori = infinity; temae_list = []}
 let eki2 = {namae="新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]}
