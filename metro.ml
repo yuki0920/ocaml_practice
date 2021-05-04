@@ -444,3 +444,11 @@ let test_koushin_5 = koushin1 eki2 eki1 = {namae="池袋"; saitan_kyori = 3.0; t
 let test_koushin_6 = koushin1 eki2 eki2 = eki2
 let test_koushin_7 = koushin1 eki2 eki3 = eki3
 let test_koushin_8 = koushin1 eki2 eki4 = eki4
+
+let koushin start eki_list = List.map(fun dest -> koushin1 start dest) eki_list
+
+let eki_lst = [eki1; eki2; eki3; eki4]
+
+let test_koushin1 = koushin eki2 [] = []
+let test_koushin2 = koushin eki2 eki_lst = [{namae="池袋"; saitan_kyori = 3.0; temae_list = ["池袋"; "新大塚"; "茗荷谷"]};
+  eki2; eki3; eki4]
