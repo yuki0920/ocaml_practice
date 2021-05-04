@@ -475,3 +475,31 @@ let eki_lst = [eki1; eki2; eki3; eki4]
 let test_koushin1 = koushin eki2 [] = []
 let test_koushin2 = koushin eki2 eki_lst = [{namae="池袋"; saitan_kyori = 3.0; temae_list = ["池袋"; "新大塚"; "茗荷谷"]};
   eki2; eki3; eki4]
+
+let rec saitan eki_list = match eki_list with
+  [] -> failwith "error"
+  | [first] -> first
+  | first :: rest -> let second  = saitan rest in
+    if first.saitan_kyori <= second.saitan_kyori
+    then first
+    else second
+
+(* 目的: 点Vの集合から最短距離の点とそれ以外の点のリストの組を返す *)
+(* 最短の点を保持し、更新する *)
+(* 最短の点以外を保持し、更新する *)
+
+let rec saitan_wo_bunri eki_list = match eki_list with
+  [] -> failwith "error"
+  | [first] -> (first, [])
+  | first :: rest -> let (second, second_rest)  = saitan_wo_bunri rest in
+    if first.saitan_kyori <= second.saitan_kyori
+    then (first, second :: second_rest)
+    else (second, first :: second_rest)
+
+let eki1 = {namae="池袋"; saitan_kyori = infinity; temae_list = []}
+let eki2 = {namae="新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]}
+let eki3 = {namae="茗荷谷"; saitan_kyori = 0.; temae_list = ["茗荷谷"]}
+let eki4 = {namae="後楽園"; saitan_kyori = infinity; temae_list = []}
+let eki_list = [eki1; eki2; eki3; eki4]
+let test_saitan_wo_bunri = saitan_wo_bunri eki_list = (eki3, [eki1; eki2; eki4])
+let test_saitan = saitan eki_list = eki3
