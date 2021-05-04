@@ -507,14 +507,15 @@ let test_saitan_wo_bunri = saitan_wo_bunri eki_list = (eki3, [eki1; eki2; eki4])
 let test_saitan = saitan eki_list = eki3
 
 (* 目的 駅名リストと駅間リストを引数に受け取り各駅の最短距離を更新した駅間リストを返す *)
-let rec dijkstra_main ekimei_list ekikan_list = match ekimei_list with
+let rec dijkstra_main eki_t_list ekikan_list = match eki_t_list with
   [] -> []
-  | first :: rest -> match ekimei_list with
-    [] -> []
-    | first :: rest -> []
+  | first_eki_t_list :: rest_eki_t_list ->
+    let (saitan, nokori) = saitan_wo_bunri eki_t_list in
+    let koushin_eki_t_list = koushin saitan nokori ekikan_list in
+    saitan :: dijkstra_main koushin_eki_t_list ekikan_list
 
 let test_dijkstra_main1 = dijkstra_main [] global_ekikan_list = []
-let test_dijkstra_main2 = dijkstra_main ekimei_list global_ekikan_list =
+let test_dijkstra_main2 = dijkstra_main eki_lst global_ekikan_list =
   [{namae = "茗荷谷"; saitan_kyori = 0.; temae_list = ["茗荷谷"]};
     {namae = "新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]};
     {namae = "後楽園"; saitan_kyori = 1.8; temae_list = ["後楽園"; "茗荷谷"]};
