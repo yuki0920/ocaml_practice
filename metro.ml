@@ -399,14 +399,12 @@ let rec make_eki_list ekimei_t_list = match ekimei_t_list with
   [] -> []
   | ekimei_t :: rest -> {namae = ekimei_t.kanji; saitan_kyori = infinity; temae_list = []} :: make_eki_list rest
 
+let make_eki_list ekimei_t_list = List.map(fun ekimei_t -> {namae = ekimei_t.kanji; saitan_kyori = infinity; temae_list = []}) ekimei_t_list
+
 let test_make_eki_list1 = make_eki_list [] = []
 let test_make_eki_list2 = make_eki_list [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"};] = [{namae = "代々木上原"; saitan_kyori = infinity; temae_list = []}]
 
-let rec shokika eki_t_list kiten = match eki_t_list with
-    [] -> []
-    | eki_t :: rest ->
-      if eki_t.namae = kiten then {namae = eki_t.namae; saitan_kyori = 0.; temae_list = [kiten]} :: rest
-      else eki_t :: shokika rest kiten
+let shokika eki_t_list kiten = List.map(fun eki_t -> if eki_t.namae = kiten then {namae = eki_t.namae; saitan_kyori = 0.; temae_list = [kiten]} else eki_t) eki_t_list
 
 let test_shokika1 = shokika [{namae="代々木上原"; saitan_kyori = infinity; temae_list = []}] "代々木上原" = [{namae="代々木上原"; saitan_kyori = 0.; temae_list = ["代々木上原"]}]
 let test_shokika2 = shokika [{namae="代々木上原"; saitan_kyori = infinity; temae_list = []}; {namae="代々木公園"; saitan_kyori = infinity; temae_list = []}] "代々木上原"
