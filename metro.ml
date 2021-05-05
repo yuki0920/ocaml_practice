@@ -548,3 +548,18 @@ let test_dijkstra1 = dijkstra "yoyogiuehara" "meijijinguumae" = {namae = "明治
 let test_dijkstra3 = dijkstra "myogadani" "ikebukuro" = {namae = "池袋";saitan_kyori = 3.; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}
 let test_dijkstra4 = dijkstra "otemachi" "kudanshita" = {namae = "九段下";saitan_kyori = 2.; temae_list = ["九段下"; "竹橋"; "大手町"]}
 let test_dijkstra5 = dijkstra "shibuya" "gokokuji" = {namae = "護国寺"; saitan_kyori = 9.8; temae_list =["護国寺"; "江戸川橋"; "飯田橋"; "市ヶ谷"; "麹町"; "永田町"; "青山一丁目"; "表参道"; "渋谷"]}
+
+type ekikan_tree_t =
+  Empty
+  | Node of ekikan_tree_t * string * (string * float) list * ekikan_tree_t
+
+
+let rec assoc shuten ekimei_kyori_list = match ekimei_kyori_list with
+  [] -> infinity
+  | (ekimei, kyori) :: rest ->
+    if shuten = ekimei then kyori
+    else assoc shuten rest
+
+let test_assoc1 = assoc "後楽園" [] = infinity
+let test_assoc2 = assoc "後楽園" [("新大塚", 1.2); ("後楽園", 1.8)] = 1.8
+let test_assoc3 = assoc "池袋" [("新大塚", 1.2); ("後楽園", 1.8)] = infinity
