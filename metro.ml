@@ -619,3 +619,20 @@ let test_inserts_ekikan1 = inserts_ekikan Empty [test_ekikan1; test_ekikan2; tes
       "茗荷谷", [("新大塚", 1.2); ("後楽園", 1.8)], Empty
     )
   )
+
+let rec get_ekikan_kyori2 kiten shuten ekikan_tree = match ekikan_tree with
+  Empty -> infinity
+  | Node(left, node_kiten, node_dest, right) ->
+    if node_kiten > kiten
+    then get_ekikan_kyori2 kiten shuten left
+    else if node_kiten < kiten
+    then get_ekikan_kyori2 kiten shuten right
+    else assoc shuten node_dest
+
+
+let global_ekikan_tree = inserts_ekikan Empty global_ekikan_list
+
+let test_get_ekikan_kyori1 = get_ekikan_kyori2 "代々木上原" "代々木公園" Empty = infinity
+let test_get_ekikan_kyori2 = get_ekikan_kyori2 "代々木公園" "代々木神社" global_ekikan_tree = infinity
+let test_get_ekikan_kyori3 = get_ekikan_kyori2 "代々木上原" "代々木公園" global_ekikan_tree = 1.0
+let test_get_ekikan_kyori4 = get_ekikan_kyori2 "代々木公園" "代々木上原" global_ekikan_tree = 1.0
