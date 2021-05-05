@@ -605,3 +605,17 @@ let test_insert_ekikan3 = test_ekikan_tree3 =
 	      Node (Empty,
 		    "茗荷谷", [("後楽園", 1.8); ("新大塚", 1.2)],
 		    Empty)))
+
+let inserts_ekikan ekikan_tree ekikan_list = List.fold_right(fun ekikan result -> insert_ekikan result ekikan) ekikan_list ekikan_tree
+
+let test_inserts_ekikan1 = inserts_ekikan Empty [test_ekikan1; test_ekikan2; test_ekikan3] =
+  Node(
+    Empty, "後楽園", [("茗荷谷", 1.8)], Node(
+      Node(
+        Empty, "新大塚", [("池袋", 1.8); ("茗荷谷", 1.2)], Node(
+          Empty, "池袋", [("新大塚", 1.8)], Empty
+        )
+      ),
+      "茗荷谷", [("新大塚", 1.2); ("後楽園", 1.8)], Empty
+    )
+  )
