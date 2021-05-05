@@ -567,29 +567,27 @@ let rec saitan eki_list = match eki_list with
 (* 最短の点を保持し、更新する *)
 (* 最短の点以外を保持し、更新する *)
 
-let saitan_wo_bunri eki_list =
-  List.fold_right(fun eki (first, rest) ->
-    if first.namae = ""
-    then (eki, rest)
-    else if eki.saitan_kyori < first.saitan_kyori
-    then (eki, first :: rest)
-    else (first, eki :: rest)
-  ) eki_list ({namae = ""; saitan_kyori = infinity; temae_list = []}, [])
+let saitan_wo_bunri first rest =
+  List.fold_right(fun eki (kouho_first, kouho_rest) ->
+    if eki.saitan_kyori < kouho_first.saitan_kyori
+    then (eki, kouho_first :: kouho_rest)
+    else (kouho_first, eki :: kouho_rest)
+  ) rest (first, [])
 
 let eki1 = {namae="池袋"; saitan_kyori = infinity; temae_list = []}
 let eki2 = {namae="新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]}
 let eki3 = {namae="茗荷谷"; saitan_kyori = 0.; temae_list = ["茗荷谷"]}
 let eki4 = {namae="後楽園"; saitan_kyori = infinity; temae_list = []}
 let eki_list = [eki1; eki2; eki3; eki4]
-let test_saitan_wo_bunri = saitan_wo_bunri eki_list = (eki3, [eki1; eki2; eki4])
+let test_saitan_wo_bunri = saitan_wo_bunri eki1 [eki2; eki3; eki4] = (eki3, [eki2; eki1; eki4])
 let test_saitan = saitan eki_list = eki3
 
 (* 目的 駅名リストと駅間リストを引数に受け取り各駅の最短距離を更新した駅間リストを返す *)
 (* dijkstra_main : eki_t list -> ekikan_t list -> eki_t list *)
 let rec dijkstra_main eki_t_list ekikan_tree = match eki_t_list with
   [] -> []
-  | first_eki_t_list :: rest_eki_t_list ->
-    let (saitan, nokori) = saitan_wo_bunri eki_t_list in
+  | first_eki_t :: rest_eki_t_list ->
+    let (saitan, nokori) = saitan_wo_bunri first_eki_t rest_eki_t_list in
     let koushin_eki_t_list = koushin saitan nokori ekikan_tree in
     saitan :: dijkstra_main koushin_eki_t_list ekikan_tree
 
