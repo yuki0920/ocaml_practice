@@ -410,6 +410,7 @@ let test_shokika1 = shokika [{namae="代々木上原"; saitan_kyori = infinity; 
 let test_shokika2 = shokika [{namae="代々木上原"; saitan_kyori = infinity; temae_list = []}; {namae="代々木公園"; saitan_kyori = infinity; temae_list = []}] "代々木上原"
   = [{namae="代々木上原"; saitan_kyori = 0.; temae_list = ["代々木上原"]};  {namae="代々木公園"; saitan_kyori = infinity; temae_list = []}]
 
+(* make_initial_eki_list : ekimei_t list -> string -> eki_t list *)
 let make_initial_eki_list ekimei_t_list kiten = List.map(
   fun ekimei_t ->
     if ekimei_t.kanji = kiten then {namae = ekimei_t.kanji; saitan_kyori = 0.; temae_list = [kiten]}
@@ -435,6 +436,7 @@ let test_make_initial_eki_list2 = make_initial_eki_list ekimei_list "茗荷谷" 
 {namae="御茶ノ水"; saitan_kyori = infinity; temae_list = []}
 ]
 
+(* kana_insert : ekimei_t list -> ekimei_t -> ekimei_t list *)
 let rec kana_insert lst input_ekimei_t = match lst with
   [] -> [input_ekimei_t]
   | first :: rest ->
@@ -442,7 +444,8 @@ let rec kana_insert lst input_ekimei_t = match lst with
     else if first.kana < input_ekimei_t.kana then first :: kana_insert rest input_ekimei_t
     else input_ekimei_t :: lst
 
-let rec seiretsu eki_t_list = match eki_t_list with
+(* seiretsu : ekimei_t list -> ekimei_t list *)
+let rec seiretsu ekimei_t_list = match ekimei_t_list with
   [] -> []
   | first :: rest -> kana_insert (seiretsu rest) first
 
@@ -507,6 +510,7 @@ let test_saitan_wo_bunri = saitan_wo_bunri eki_list = (eki3, [eki1; eki2; eki4])
 let test_saitan = saitan eki_list = eki3
 
 (* 目的 駅名リストと駅間リストを引数に受け取り各駅の最短距離を更新した駅間リストを返す *)
+(* dijkstra_main : eki_t list -> ekikan_t list -> eki_t list *)
 let rec dijkstra_main eki_t_list ekikan_list = match eki_t_list with
   [] -> []
   | first_eki_t_list :: rest_eki_t_list ->
@@ -520,3 +524,23 @@ let test_dijkstra_main2 = dijkstra_main eki_lst global_ekikan_list =
     {namae = "新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]};
     {namae = "後楽園"; saitan_kyori = 1.8; temae_list = ["後楽園"; "茗荷谷"]};
     {namae = "池袋"; saitan_kyori = 3.; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}]
+
+(* 目的 駅名に合致するeki_tをリストから探し出し1レコード返す *)
+(* dijkstra : eki_mei string -> ekit_list lst -> eki_t *)
+let rec find_eki_list eki_mei eki_t_list = match eki_t_list with
+  [] -> {namae=""; saitan_kyori=infinity; temae_list = []}
+  | first :: rest ->
+      if first.namae = eki_mei then first
+      else find_eki_list eki_mei rest
+
+(* 目的 始点の駅名と終点の駅名を漢字で受け取り、最短距離と経由地終点の駅のレコードを返す *)
+(* dijkstra : shiten string -> shuten string -> eki_t *)
+let rec dijkstra shiten shuten =
+  let seiretsu_ekimei_t_list = seiretsu global_ekimei_list in
+  let initial_eki_t_list = make_initial_eki_list seiretsu_ekimei_t_list shiten in
+  let koushin_eki_t_list = dijkstra_main initial_eki_t_list global_ekikan_list in
+  find_eki_list shuten koushin_eki_t_list
+
+let test_dijkstra1 = dijkstra "代々木上原" "代々木公園" = {namae = "代々木公園";saitan_kyori = 1.0; temae_list = ["代々木公園"; "代々木上原"]}
+let test_dijkstra1 = dijkstra "代々木上原" "明治神宮前" = {namae = "明治神宮前";saitan_kyori = 2.2; temae_list = ["明治神宮前"; "代々木公園"; "代々木上原"]}
+let test_dijkstra3 = dijkstra "茗荷谷" "池袋" = {namae = "池袋";saitan_kyori = 3.; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}
