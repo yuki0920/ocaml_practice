@@ -563,3 +563,9 @@ let rec assoc shuten ekimei_kyori_list = match ekimei_kyori_list with
 let test_assoc1 = assoc "後楽園" [] = infinity
 let test_assoc2 = assoc "後楽園" [("新大塚", 1.2); ("後楽園", 1.8)] = 1.8
 let test_assoc3 = assoc "池袋" [("新大塚", 1.2); ("後楽園", 1.8)] = infinity
+
+let rec insert_ekikan_hojo ekikan_tree_t ekikan_t = match ekikan_tree_t with
+  Empty -> Node(Empty, ekikan_t.kiten, [(ekikan_t.shuten, ekikan_t.kyori)], Empty)
+  | Node(t1, ekimei, kumi, t2) -> Empty
+
+let test_insert_ekikan_hojo1 = insert_ekikan_hojo Empty {kiten="代々木上原"; shuten="代々木公園"; keiyu="千代田線"; kyori=1.0; jikan=2} = Node(Empty, "代々木上原", [("代々木公園", 1.0)], Empty)
