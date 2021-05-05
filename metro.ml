@@ -564,30 +564,44 @@ let test_assoc1 = assoc "後楽園" [] = infinity
 let test_assoc2 = assoc "後楽園" [("新大塚", 1.2); ("後楽園", 1.8)] = 1.8
 let test_assoc3 = assoc "池袋" [("新大塚", 1.2); ("後楽園", 1.8)] = infinity
 
-let rec insert_ekikan ekikan_tree_t ekikan_t = match ekikan_tree_t with
-  Empty
-    -> Node(Empty, ekikan_t.kiten, [(ekikan_t.shuten, ekikan_t.kyori)],
-      Node(Empty, ekikan_t.shuten, [(ekikan_t.kiten, ekikan_t.kyori)], Empty))
-    | Node(t1, kiten, dest, t2) ->
-      if kiten = ekikan_t.kiten
-      then Node(t1, kiten, (ekikan_t.shuten, ekikan_t.kyori) :: dest, t2)
-      else if kiten = ekikan_t.shuten
-      then Node(t1, kiten, (ekikan_t.kiten, ekikan_t.kyori) :: dest, t2)
-      else Node(insert_ekikan t1 ekikan_t, kiten, dest, insert_ekikan t2 ekikan_t)
+(* 目的 駅間ツリーと始点と終点と距離を受け取り、駅間ツリーに挿入して返す *)
+let rec insert_hojo ekikan_tree_t kiten shuten kyori = match ekikan_tree_t with
+  Empty -> Node(Empty, kiten, [(shuten, kyori)], Empty)
+  | Node(left, node_kiten, destinations, right) ->
+    if node_kiten > kiten
+    then Node(insert_hojo left kiten shuten kyori, node_kiten, destinations, right)
+    else if node_kiten < kiten
+    then Node(left , node_kiten, destinations, insert_hojo right kiten shuten kyori)
+    else Node(left, node_kiten, (shuten, kyori) :: destinations, right)
 
-let ekikan1 = {kiten="代々木上原"; shuten="代々木公園"; keiyu="千代田線"; kyori=1.0; jikan=2}
-let ekikan2 = {kiten="代々木公園"; shuten="明治神宮前"; keiyu="千代田線"; kyori=1.2; jikan=2}
-let ekikan3 = {kiten="明治神宮前"; shuten="表参道"; keiyu="千代田線"; kyori=0.9; jikan=2}
+(* 目的 駅間ツリーと駅間を受け取り、駅間を始点分と終点分を駅間ツリーに挿入して返す *)
+let insert_ekikan ekikan_tree_t ekikan_t =
+  insert_hojo (insert_hojo ekikan_tree_t ekikan_t.shuten ekikan_t.kiten ekikan_t.kyori) ekikan_t.kiten ekikan_t.shuten ekikan_t.kyori
 
-let test_insert_tree1 = insert_ekikan Empty ekikan1
-let test_insert_ekikan1 = test_insert_tree1 =
-  Node(Empty, "代々木上原", [("代々木公園", 1.)],
-    Node(Empty, "代々木公園", [("代々木上原", 1.)], Empty)
-  )
-let test_insert_ekikan2 = insert_ekikan test_insert_tree1 ekikan2 =
-  Node(
-    Node(Empty, "代々木公園", [("明治神宮前", 1.2)],
-        Node(Empty, "明治神宮前", [("代々木公園", 1.2)], Empty)), "代々木上原", [("代々木公園", 1.)],
-          Node(Empty, "代々木公園", [("明治神宮前", 1.2); ("代々木上原", 1.)], Empty
-    )
-  )
+(* 駅間の例 *)
+let test_ekikan1 =
+  {kiten="池袋"; shuten="新大塚"; keiyu="丸ノ内線"; kyori=1.8; jikan=3}
+let test_ekikan2 =
+  {kiten="新大塚"; shuten="茗荷谷"; keiyu="丸ノ内線"; kyori=1.2; jikan=2}
+let test_ekikan3 =
+  {kiten="茗荷谷"; shuten="後楽園"; keiyu="丸ノ内線"; kyori=1.8; jikan=2}
+
+(* テスト *)
+let test_ekikan_tree1 = insert_ekikan Empty test_ekikan1
+let test_insert_ekikan1 = test_ekikan_tree1 =
+  Node (Empty, "新大塚", [("池袋", 1.8)],
+	Node (Empty, "池袋", [("新大塚", 1.8)], Empty))
+let test_ekikan_tree2 = insert_ekikan test_ekikan_tree1 test_ekikan2
+let test_insert_ekikan2 = test_ekikan_tree2 =
+  Node (Empty, "新大塚", [("茗荷谷", 1.2); ("池袋", 1.8)],
+	Node (Empty, "池袋", [("新大塚", 1.8)],
+	      Node (Empty, "茗荷谷", [("新大塚", 1.2)], Empty)))
+let test_ekikan_tree3 = insert_ekikan test_ekikan_tree2 test_ekikan3
+let test_insert_ekikan3 = test_ekikan_tree3 =
+  Node (Node (Empty, "後楽園", [("茗荷谷", 1.8)], Empty),
+	"新大塚", [("茗荷谷", 1.2); ("池袋", 1.8)],
+        Node (Empty,
+	      "池袋", [("新大塚", 1.8)],
+	      Node (Empty,
+		    "茗荷谷", [("後楽園", 1.8); ("新大塚", 1.2)],
+		    Empty)))
