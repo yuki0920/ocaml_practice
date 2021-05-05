@@ -364,14 +364,14 @@ let test_romaji_to_kanji3 = romaji_to_kanji "yoyogikouen" global_ekimei_list = "
 let test_romaji_to_kanji3 = romaji_to_kanji "yoyogijinja" global_ekimei_list = ""
 
 let rec assoc shuten ekimei_kyori_list = match ekimei_kyori_list with
-  [] -> infinity
+  [] -> raise Not_found
   | (ekimei, kyori) :: rest ->
     if shuten = ekimei then kyori
     else assoc shuten rest
 
-let test_assoc1 = assoc "後楽園" [] = infinity
+(* let test_assoc1 = assoc "後楽園" [] = 例外を発生する *)
 let test_assoc2 = assoc "後楽園" [("新大塚", 1.2); ("後楽園", 1.8)] = 1.8
-let test_assoc3 = assoc "池袋" [("新大塚", 1.2); ("後楽園", 1.8)] = infinity
+(* let test_assoc3 = assoc "池袋" [("新大塚", 1.2); ("後楽園", 1.8)] = 例外を発生する *)
 
 type ekikan_tree_t =
   Empty
@@ -434,7 +434,7 @@ let test_inserts_ekikan1 = inserts_ekikan Empty [test_ekikan1; test_ekikan2; tes
   )
 
 let rec get_ekikan_kyori kiten shuten ekikan_tree = match ekikan_tree with
-  Empty -> infinity
+  Empty -> raise Not_found
   | Node(left, node_kiten, node_dest, right) ->
     if node_kiten > kiten
     then get_ekikan_kyori kiten shuten left
@@ -444,8 +444,8 @@ let rec get_ekikan_kyori kiten shuten ekikan_tree = match ekikan_tree with
 
 let global_ekikan_tree = inserts_ekikan Empty global_ekikan_list
 
-let test_get_ekikan_kyori1 = get_ekikan_kyori "代々木上原" "代々木公園" Empty = infinity
-let test_get_ekikan_kyori2 = get_ekikan_kyori "代々木公園" "代々木神社" global_ekikan_tree = infinity
+(* let test_get_ekikan_kyori1 = get_ekikan_kyori "代々木上原" "代々木公園" Empty = infinity *)
+(* let test_get_ekikan_kyori2 = get_ekikan_kyori "代々木公園" "代々木神社" global_ekikan_tree = 例外を発生する *)
 let test_get_ekikan_kyori3 = get_ekikan_kyori "代々木上原" "代々木公園" global_ekikan_tree = 1.0
 let test_get_ekikan_kyori4 = get_ekikan_kyori "代々木公園" "代々木上原" global_ekikan_tree = 1.0
 
@@ -461,7 +461,7 @@ let rec kyori_wo_hyoji eki1 eki2 =
 
 let test_kyori_wo_hyoji1 = kyori_wo_hyoji "yoyogijinja" "yoyogiuehara" = "yoyogijinjaという駅は存在しません"
 let test_kyori_wo_hyoji2 = kyori_wo_hyoji "yoyogiuehara" "yoyogijinja" = "yoyogijinjaという駅は存在しません"
-let test_kyori_wo_hyoji3 = kyori_wo_hyoji "yoyogiuehara" "meijijinguumae" = "代々木上原駅と明治神宮前駅はつながっていません"
+(* let test_kyori_wo_hyoji3 = kyori_wo_hyoji "yoyogiuehara" "meijijinguumae" = 例外を発生する *)
 let test_kyori_wo_hyoji4 = kyori_wo_hyoji "yoyogiuehara" "yoyogikouen" = "代々木上原駅と代々木公園駅までは1.kmです"
 
 type eki_t = {
@@ -528,9 +528,12 @@ let test_seiretsu1 = seiretsu [{kanji="代々木上原"; kana="よよぎうえ�
 let test_seiretsu2 = seiretsu [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
 let test_seiretsu3 = seiretsu [{kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}; {kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
 
-let koushin1 start dest ekikan_tree = let kyori = get_ekikan_kyori start.namae dest.namae ekikan_tree in
-  if kyori = infinity || start.saitan_kyori +. kyori >= dest.saitan_kyori  then dest
-  else {namae = dest.namae; saitan_kyori = start.saitan_kyori +. kyori; temae_list = dest.namae :: start.temae_list}
+let koushin1 start dest ekikan_tree =
+  try
+    let kyori = get_ekikan_kyori start.namae dest.namae ekikan_tree in
+    if start.saitan_kyori +. kyori >= dest.saitan_kyori  then dest
+    else {namae = dest.namae; saitan_kyori = start.saitan_kyori +. kyori; temae_list = dest.namae :: start.temae_list}
+  with Not_found -> dest
 
 let eki1 = {namae="池袋"; saitan_kyori = infinity; temae_list = []}
 let eki2 = {namae="新大塚"; saitan_kyori = 1.2; temae_list = ["新大塚"; "茗荷谷"]}
