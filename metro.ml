@@ -454,7 +454,7 @@ let test_seiretsu2 = seiretsu [{kanji="代々木上原"; kana="よよぎうえ�
 let test_seiretsu3 = seiretsu [{kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}; {kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}] = [{kanji="代々木上原"; kana="よよぎうえはら"; romaji="yoyogiuehara"; shozoku="千代田線"}; {kanji="代々木公園"; kana="よよぎこうえん"; romaji="yoyogikouen"; shozoku="千代田線"}]
 
 let koushin1 start dest ekikan_list = let kyori = get_ekikan_kyori start.namae dest.namae ekikan_list in
-  if kyori = infinity || kyori >= dest.saitan_kyori  then dest
+  if kyori = infinity || start.saitan_kyori +. kyori >= dest.saitan_kyori  then dest
   else {namae = dest.namae; saitan_kyori = start.saitan_kyori +. kyori; temae_list = dest.namae :: start.temae_list}
 
 let eki1 = {namae="池袋"; saitan_kyori = infinity; temae_list = []}
@@ -534,13 +534,17 @@ let rec find_eki_list eki_mei eki_t_list = match eki_t_list with
       else find_eki_list eki_mei rest
 
 (* 目的 始点の駅名と終点の駅名を漢字で受け取り、最短距離と経由地終点の駅のレコードを返す *)
-(* dijkstra : shiten string -> shuten string -> eki_t *)
-let rec dijkstra shiten shuten =
+(* dijkstra : romaji_kiten string -> romaji_shuten string -> eki_t *)
+let rec dijkstra romaji_kiten romaji_shuten =
+  let kiten = romaji_to_kanji romaji_kiten global_ekimei_list in
+  let shuten = romaji_to_kanji romaji_shuten global_ekimei_list in
   let seiretsu_ekimei_t_list = seiretsu global_ekimei_list in
-  let initial_eki_t_list = make_initial_eki_list seiretsu_ekimei_t_list shiten in
+  let initial_eki_t_list = make_initial_eki_list seiretsu_ekimei_t_list kiten in
   let koushin_eki_t_list = dijkstra_main initial_eki_t_list global_ekikan_list in
   find_eki_list shuten koushin_eki_t_list
 
-let test_dijkstra1 = dijkstra "代々木上原" "代々木公園" = {namae = "代々木公園";saitan_kyori = 1.0; temae_list = ["代々木公園"; "代々木上原"]}
-let test_dijkstra1 = dijkstra "代々木上原" "明治神宮前" = {namae = "明治神宮前";saitan_kyori = 2.2; temae_list = ["明治神宮前"; "代々木公園"; "代々木上原"]}
-let test_dijkstra3 = dijkstra "茗荷谷" "池袋" = {namae = "池袋";saitan_kyori = 3.; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}
+let test_dijkstra1 = dijkstra "yoyogiuehara" "yoyogikouen" = {namae = "代々木公園";saitan_kyori = 1.0; temae_list = ["代々木公園"; "代々木上原"]}
+let test_dijkstra1 = dijkstra "yoyogiuehara" "meijijinguumae" = {namae = "明治神宮前";saitan_kyori = 2.2; temae_list = ["明治神宮前"; "代々木公園"; "代々木上原"]}
+let test_dijkstra3 = dijkstra "myogadani" "ikebukuro" = {namae = "池袋";saitan_kyori = 3.; temae_list = ["池袋"; "新大塚"; "茗荷谷"]}
+let test_dijkstra4 = dijkstra "otemachi" "kudanshita" = {namae = "九段下";saitan_kyori = 2.; temae_list = ["九段下"; "竹橋"; "大手町"]}
+let test_dijkstra5 = dijkstra "shibuya" "gokokuji" = {namae = "護国寺"; saitan_kyori = 9.8; temae_list =["護国寺"; "江戸川橋"; "飯田橋"; "市ヶ谷"; "麹町"; "永田町"; "青山一丁目"; "表参道"; "渋谷"]}
