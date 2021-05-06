@@ -353,15 +353,17 @@ let global_ekikan_list = [
   {kiten="営団成増"; shuten="和光市"; keiyu="有楽町線"; kyori=2.1; jikan=3};
 ]
 
+exception No_such_station of string
+
 let rec romaji_to_kanji input_romaji ekimei_list = match ekimei_list with
-  [] -> ""
+  [] -> raise (No_such_station (input_romaji))
   | {kanji = kanji; kana = kana; romaji = romaji; shozoku = shozoku;} :: rest
     -> if input_romaji = romaji then kanji else romaji_to_kanji input_romaji rest
 
-let test_romaji_to_kanji1 = romaji_to_kanji "" global_ekimei_list = ""
+(* let test_romaji_to_kanji1 = romaji_to_kanji "" global_ekimei_list = 例外 *)
 let test_romaji_to_kanji2 = romaji_to_kanji "yoyogiuehara" global_ekimei_list = "代々木上原"
 let test_romaji_to_kanji3 = romaji_to_kanji "yoyogikouen" global_ekimei_list = "代々木公園"
-let test_romaji_to_kanji3 = romaji_to_kanji "yoyogijinja" global_ekimei_list = ""
+(* let test_romaji_to_kanji3 = romaji_to_kanji "yoyogijinja" global_ekimei_list = 例外 *)
 
 let rec assoc shuten ekimei_kyori_list = match ekimei_kyori_list with
   [] -> raise Not_found
@@ -459,8 +461,8 @@ let rec kyori_wo_hyoji eki1 eki2 =
     then kanji_eki1 ^ "駅と" ^ kanji_eki2 ^ "駅はつながっていません"
     else kanji_eki1 ^ "駅と" ^ kanji_eki2 ^ "駅までは" ^ string_of_float ekikan_kyori ^ "kmです"
 
-let test_kyori_wo_hyoji1 = kyori_wo_hyoji "yoyogijinja" "yoyogiuehara" = "yoyogijinjaという駅は存在しません"
-let test_kyori_wo_hyoji2 = kyori_wo_hyoji "yoyogiuehara" "yoyogijinja" = "yoyogijinjaという駅は存在しません"
+(* let test_kyori_wo_hyoji1 = kyori_wo_hyoji "yoyogijinja" "yoyogiuehara" = "例外を発生する" *)
+(* let test_kyori_wo_hyoji2 = kyori_wo_hyoji "yoyogiuehara" "yoyogijinja" = "例外を発生する" *)
 (* let test_kyori_wo_hyoji3 = kyori_wo_hyoji "yoyogiuehara" "meijijinguumae" = 例外を発生する *)
 let test_kyori_wo_hyoji4 = kyori_wo_hyoji "yoyogiuehara" "yoyogikouen" = "代々木上原駅と代々木公園駅までは1.kmです"
 
